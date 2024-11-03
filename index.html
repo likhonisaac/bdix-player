@@ -1,191 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="BDIX Media Player - Advanced Cross-Platform Streaming Solution">
-    <title>BDIX Media Player</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.Multiplier/ajax/libs/plyr/3.7.8/plyr.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.polyfilled.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
-
+    <meta charSet="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BDIX Media Player - Advanced Streaming Solution</title>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css" />
     <style>
-        .gradient-bg { background: linear-gradient(135deg, #1a1c2c 0%, #4a5568 100%); }
-        .stream-status { transition: background-color 0.3s ease; }
-        .stream-status.online { background-color: #48bb78; }
-        .stream-status.offline { background-color: #f56565; }
-        .loading-spinner { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .player-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        {`
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a1c2c 0%, #4a5568 100%);
+        }
+        .player-wrapper {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .stream-status {
+            transition: all 0.3s ease;
+        }
+        .stream-status.online {
+            background-color: #48bb78;
+        }
+        .stream-status.offline {
+            background-color: #f56565;
+        }
+        `}
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="text-center mb-8 gradient-bg rounded-lg p-6">
-            <div class="flex justify-between items-center px-4">
-                <h1 class="text-3xl font-bold">BDIX Media Player</h1>
-                <div class="flex space-x-4">
-                    <a href="https://github.com/likhonisaac/bdix-player" target="_blank" 
-                       class="inline-flex items-center px-3 py-1 bg-gray-800 rounded hover:bg-gray-700">
-                        <i class="fab fa-github mr-2"></i> GitHub
-                    </a>
-                    <a href="mailto:me@likhon.dev" 
-                       class="inline-flex items-center px-3 py-1 bg-blue-600 rounded hover:bg-blue-500">
-                        <i class="fas fa-envelope mr-2"></i> Contact
-                    </a>
-                </div>
-            </div>
-        </header>
+<body className="bg-gray-900 text-white min-h-screen">
+    <div id="root"></div>
 
-        <!-- Player Container -->
-        <div class="max-w-4xl mx-auto bg-gray-800 rounded-xl overflow-hidden player-shadow">
-            <!-- Stream Status -->
-            <div class="flex items-center justify-between px-4 py-2 bg-gray-700">
-                <div class="flex items-center">
-                    <div id="streamStatus" class="stream-status offline w-2 h-2 rounded-full mr-2"></div>
-                    <span id="streamStatusText" class="text-sm">Offline</span>
-                </div>
-                <div class="flex items-center text-sm">
-                    <i class="fas fa-eye mr-2"></i>
-                    <span id="viewerCount">0</span>
-                </div>
-            </div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-            <!-- Video Player -->
-            <div class="relative aspect-w-16 aspect-h-9">
-                <video id="player" playsinline controls crossorigin="anonymous" class="w-full">
-                    <source type="application/x-mpegURL" id="videoSource">
-                </video>
-                <div id="loadingOverlay" class="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
-                    <i class="fas fa-circle-notch loading-spinner text-3xl"></i>
-                </div>
-            </div>
+        function BDIXMediaPlayer() {
+            const [streamUrl, setStreamUrl] = useState('');
+            const [streamStatus, setStreamStatus] = useState('offline');
+            const [viewerCount, setViewerCount] = useState(0);
+            const [showChat, setShowChat] = useState(false);
+            const [embedCode, setEmbedCode] = useState('');
+            const playerRef = useRef(null);
+            const videoRef = useRef(null);
 
-            <!-- Controls -->
-            <div class="p-4">
-                <div class="mb-4">
-                    <input type="text" id="streamUrl" 
-                           placeholder="Enter HLS/M3U8/MP4 URL"
-                           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <button onclick="loadStream()" class="px-3 py-2 bg-blue-600 rounded hover:bg-blue-500">
-                        <i class="fas fa-play mr-1"></i> Load
-                    </button>
-                    <button onclick="generateEmbed()" class="px-3 py-2 bg-green-600 rounded hover:bg-green-500">
-                        <i class="fas fa-code mr-1"></i> Embed
-                    </button>
-                    <button onclick="toggleChat()" class="px-3 py-2 bg-purple-600 rounded hover:bg-purple-500">
-                        <i class="fas fa-comments mr-1"></i> Chat
-                    </button>
-                    <button onclick="toggleQuality()" class="px-3 py-2 bg-yellow-600 rounded hover:bg-yellow-500">
-                        <i class="fas fa-cog mr-1"></i> Quality
-                    </button>
-                </div>
-
-                <div id="embedCode" class="hidden mt-4">
-                    <textarea id="embedCodeText" rows="3" readonly
-                              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"></textarea>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chat Overlay -->
-        <div id="chatOverlay" class="hidden fixed right-0 top-0 h-full w-64 bg-gray-800 shadow-lg">
-            <div class="p-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold">Live Chat</h3>
-                    <button onclick="toggleChat()" class="text-gray-400 hover:text-white">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div id="chatMessages" class="h-[400px] overflow-y-auto bg-gray-700 rounded p-2"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Initialize player
-        const player = new Plyr('#player', {
-            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
-            settings: ['quality', 'speed'],
-            quality: { default: 720, options: [1080, 720, 480, 360] }
-        });
-
-        // HLS implementation
-        function loadStream() {
-            const url = document.getElementById('streamUrl').value;
-            const video = document.querySelector('#player video');
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            const streamStatus = document.getElementById('streamStatus');
-            const streamStatusText = document.getElementById('streamStatusText');
-
-            if (!url) return;
-
-            loadingOverlay.classList.remove('hidden');
-            streamStatusText.textContent = 'Connecting...';
-
-            if (Hls.isSupported()) {
-                const hls = new Hls({ 
-                    debug: false,
-                    enableWorker: true,
-                    lowLatencyMode: true
+            useEffect(() => {
+                const player = new Plyr(videoRef.current, {
+                    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen']
                 });
+                playerRef.current = player;
 
-                hls.loadSource(url);
-                hls.attachMedia(video);
+                return () => {
+                    player.destroy();
+                };
+            }, []);
 
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    loadingOverlay.classList.add('hidden');
-                    streamStatus.classList.add('online');
-                    streamStatus.classList.remove('offline');
-                    streamStatusText.textContent = 'Live';
-                    video.play();
-                });
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setViewerCount(Math.floor(Math.random() * 100));
+                }, 5000);
 
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    if (data.fatal) {
-                        loadingOverlay.classList.add('hidden');
-                        streamStatus.classList.remove('online');
-                        streamStatus.classList.add('offline');
-                        streamStatusText.textContent = 'Error';
-                    }
-                });
-            }
+                return () => clearInterval(interval);
+            }, []);
+
+            const loadStream = () => {
+                setStreamStatus('connecting');
+                const video = videoRef.current;
+
+                if (Hls.isSupported()) {
+                    const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
+                    hls.loadSource(streamUrl);
+                    hls.attachMedia(video);
+
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        setStreamStatus('online');
+                        video.play();
+                    });
+
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        if (data.fatal) {
+                            setStreamStatus('offline');
+                        }
+                    });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = streamUrl;
+                    video.addEventListener('loadedmetadata', () => {
+                        video.play();
+                    });
+                }
+            };
+
+            const generateEmbed = () => {
+                const embedCode = `<iframe src="https://bdix-player.vercel.app/embed?type=m3u8&src=${encodeURIComponent(streamUrl)}" 
+                                         width="100%" height="400" frameborder="0" allowfullscreen></iframe>`;
+                setEmbedCode(embedCode);
+            };
+
+            return (
+                <div className="container mx-auto px-4 py-8">
+                    <header className="text-center mb-8 gradient-bg rounded-lg p-8">
+                        <h1 className="text-4xl font-bold mb-4">BDIX Media Player</h1>
+                        <p className="text-xl text-gray-300">Advanced Streaming Solution</p>
+                        <div className="mt-4">
+                            <a href="https://github.com/likhonisaac/bdix-player" target="_blank" rel="noopener noreferrer"
+                               className="inline-block px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition">
+                                GitHub
+                            </a>
+                            <a href="mailto:me@likhon.dev" 
+                               className="inline-block px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition ml-4">
+                                Contact
+                            </a>
+                        </div>
+                    </header>
+
+                    <div className="max-w-4xl mx-auto bg-gray-800 rounded-xl overflow-hidden player-wrapper">
+                        <div className="flex items-center px-6 py-3 bg-gray-700">
+                            <div className={`stream-status ${streamStatus} w-3 h-3 rounded-full mr-2`}></div>
+                            <span>{streamStatus === 'online' ? 'Stream Online' : streamStatus === 'connecting' ? 'Connecting...' : 'Stream Offline'}</span>
+                            <span className="ml-auto">{viewerCount} viewers</span>
+                        </div>
+
+                        <div className="relative aspect-w-16 aspect-h-9">
+                            <video ref={videoRef} playsInline controls crossOrigin="anonymous">
+                                <source type="application/x-mpegURL" />
+                            </video>
+                        </div>
+
+                        <div className="p-6">
+                            <div className="mb-4">
+                                <label className="block text-gray-300 text-sm font-bold mb-2">Stream URL (HLS/M3U8/MP4)</label>
+                                <div className="flex">
+                                    <input 
+                                        type="text" 
+                                        value={streamUrl}
+                                        onChange={(e) => setStreamUrl(e.target.value)}
+                                        className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Enter stream URL..."
+                                    />
+                                    <button 
+                                        onClick={loadStream}
+                                        className="px-6 py-2 bg-blue-600 rounded-r-lg hover:bg-blue-500 transition"
+                                    >
+                                        Load
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <button 
+                                    onClick={generateEmbed}
+                                    className="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-500 transition"
+                                >
+                                    Generate Embed Code
+                                </button>
+                                <button 
+                                    onClick={() => setShowChat(!showChat)}
+                                    className="px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-500 transition"
+                                >
+                                    Toggle Chat
+                                </button>
+                            </div>
+
+                            {embedCode && (
+                                <div className="mt-4">
+                                    <label className="block text-gray-300 text-sm font-bold mb-2">Embed Code</label>
+                                    <textarea 
+                                        value={embedCode}
+                                        readOnly
+                                        rows="3"
+                                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {showChat && (
+                        <div className="fixed right-0 top-0 h-full w-80 bg-gray-800 shadow-lg">
+                            <div className="p-4">
+                                <h3 className="text-lg font-bold mb-4">Live Chat</h3>
+                                <div className="h-[500px] overflow-y-auto bg-gray-700 rounded-lg p-4">
+                                    {/* Chat messages would be populated here */}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
         }
 
-        function generateEmbed() {
-            const url = document.getElementById('streamUrl').value;
-            if (!url) return;
-            
-            const embedCode = `<iframe src="https://example.com/embed?src=${encodeURIComponent(url)}" 
-                                     width="100%" height="400" frameborder="0" allowfullscreen></iframe>`;
-            
-            const embedDiv = document.getElementById('embedCode');
-            const embedText = document.getElementById('embedCodeText');
-            
-            embedDiv.classList.remove('hidden');
-            embedText.value = embedCode;
-        }
-
-        function toggleChat() {
-            const chat = document.getElementById('chatOverlay');
-            chat.classList.toggle('hidden');
-        }
-
-        function toggleQuality() {
-            player.toggleMenu('quality');
-        }
-
-        // Simple analytics
-        setInterval(() => {
-            const viewers = Math.floor(Math.random() * 100) + 1; // Ensure minimum of 1 viewer
-            document.getElementById('viewerCount').textContent = viewers;
-        }, 5000);
+        ReactDOM.render(<BDIXMediaPlayer />, document.getElementById('root'));
     </script>
 </body>
 </html>
