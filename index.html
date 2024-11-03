@@ -1,142 +1,160 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BDIX Media Player - Multi-Platform Streaming</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.polyfilled.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
-</head>
-<body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800">BDIX Media Player</h1>
-            <p class="text-gray-600 mt-2">Cross-platform streaming solution with multi-service integration</p>
-        </header>
+# BDIX Media Player
 
-        <!-- Player Container -->
-        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-            <div class="relative aspect-w-16 aspect-h-9">
-                <video id="player" playsinline controls class="w-full h-full">
-                    <source type="application/x-mpegURL" id="videoSource">
-                </video>
-            </div>
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Platform](https://img.shields.io/badge/platform-cross--platform-lightgrey.svg)
 
-            <!-- Stream Controls -->
-            <div class="p-6">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">
-                        Stream URL (HLS/M3U8/MP4)
-                    </label>
-                    <input type="text" id="streamUrl" 
-                           class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                           placeholder="Enter stream URL...">
-                </div>
+BDIX Media Player is a free and open-source, cross-platform streaming media player and server solution that supports multiple streaming platforms including Facebook, YouTube, and Twitch. It provides a robust, customizable HTML5 player with advanced features for both broadcasters and viewers.
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <button onclick="loadStream()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
-                        Load Stream
-                    </button>
-                    <button onclick="generateEmbed()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
-                        Generate Embed Code
-                    </button>
-                    <button onclick="toggleChat()" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition">
-                        Toggle Chat Overlay
-                    </button>
-                </div>
+## 🚀 Features
 
-                <!-- Embed Code Output -->
-                <div id="embedCode" class="hidden mt-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">
-                        Embed Code
-                    </label>
-                    <textarea id="embedCodeText" rows="3" 
-                              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              readonly></textarea>
-                </div>
-            </div>
+- **Multi-Platform Streaming Integration**
+  - Facebook Live integration
+  - YouTube Live streaming
+  - Twitch streaming support
+  - Custom RTMP/HLS endpoints
 
-            <!-- Chat Overlay -->
-            <div id="chatOverlay" class="hidden fixed right-0 top-0 h-full w-80 bg-white shadow-lg">
-                <div class="p-4">
-                    <h3 class="text-lg font-bold mb-4">Live Chat</h3>
-                    <div id="chatMessages" class="h-[500px] overflow-y-auto border rounded p-2"></div>
-                </div>
-            </div>
-        </div>
+- **Advanced Player Capabilities**
+  - HTML5 player with custom controls
+  - Adaptive bitrate streaming
+  - Multi-quality resolution support
+  - Live-to-VOD transition
+  - Chat overlay integration
 
-        <!-- Features Section -->
-        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-xl font-bold mb-3">Global CDN</h3>
-                <p>50+ edge locations with 65Tb/s network capacity for optimal streaming performance.</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-xl font-bold mb-3">Adaptive Bitrate</h3>
-                <p>Automatic quality adjustment based on viewer's network conditions.</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-xl font-bold mb-3">Analytics</h3>
-                <p>Real-time viewer stats, peak times, and bandwidth usage monitoring.</p>
-            </div>
-        </div>
-    </div>
+- **Global CDN Integration**
+  - 50+ edge locations worldwide
+  - 65Tb/s network capacity
+  - Optimal global content delivery
+  - Low-latency streaming
 
-    <script>
-        // Initialize Plyr
-        const player = new Plyr('#player', {
-            controls: [
-                'play-large', 'play', 'progress', 'current-time',
-                'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'
-            ]
-        });
+- **Security & Control**
+  - Geographic access control
+  - Domain restriction
+  - Custom authentication
+  - Secure playback options
 
-        // HLS support
-        function loadStream() {
-            const url = document.getElementById('streamUrl').value;
-            const video = document.querySelector('#player');
-            const source = document.querySelector('#videoSource');
+- **Analytics & Monitoring**
+  - Real-time viewer statistics
+  - Bandwidth usage tracking
+  - Peak time analysis
+  - Performance metrics
 
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(video);
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                source.src = url;
-                video.load();
-            }
-        }
+## 📋 Requirements
 
-        // Generate embed code
-        function generateEmbed() {
-            const url = document.getElementById('streamUrl').value;
-            const embedCode = `<iframe src="https://your-domain.com/embed?type=m3u8&src=${encodeURIComponent(url)}" 
-                                     width="100%" height="400" frameborder="0" allowfullscreen></iframe>`;
-            
-            const embedDiv = document.getElementById('embedCode');
-            const embedText = document.getElementById('embedCodeText');
-            
-            embedDiv.classList.remove('hidden');
-            embedText.value = embedCode;
-        }
+- Modern web browser with HTML5 support
+- Internet connection
+- Supported streaming source (HLS/M3U8/MP4)
 
-        // Toggle chat overlay
-        function toggleChat() {
-            const chat = document.getElementById('chatOverlay');
-            chat.classList.toggle('hidden');
-        }
+## 🔧 Installation
 
-        // Analytics tracking
-        let viewerCount = 0;
-        function updateAnalytics() {
-            // Simulate analytics data
-            viewerCount = Math.floor(Math.random() * 100);
-            console.log(`Current viewers: ${viewerCount}`);
-        }
-        setInterval(updateAnalytics, 5000);
-    </script>
-</body>
-</html>
+1. Clone the repository:
+```bash
+git clone https://github.com/likhonisaac/bdix-player.git
+```
+
+2. Navigate to the project directory:
+```bash
+cd bdix-player
+```
+
+3. Open `index.html` in your web browser or deploy to your web server.
+
+## 💻 Usage
+
+### Basic Implementation
+
+```html
+<iframe 
+  src="https://your-domain.com/embed?type=m3u8&src=YOUR_STREAM_URL" 
+  width="100%" 
+  height="400" 
+  frameborder="0" 
+  allowfullscreen>
+</iframe>
+```
+
+### Advanced Configuration
+
+```javascript
+const player = new BDIXPlayer({
+  container: '#player',
+  source: 'YOUR_STREAM_URL',
+  autoplay: true,
+  muted: false,
+  controls: true,
+  adaptiveBitrate: true
+});
+```
+
+## 🔌 API Reference
+
+### Stream Types
+- `m3u8` - HLS streams
+- `mp4` - Direct video files
+- `rtmp` - RTMP streams
+
+### Player Options
+```javascript
+{
+  container: string,      // Player container ID
+  source: string,        // Stream URL
+  autoplay: boolean,     // Enable autoplay
+  muted: boolean,        // Start muted
+  controls: boolean,     // Show controls
+  adaptiveBitrate: boolean, // Enable ABR
+  chat: boolean,         // Enable chat overlay
+  logo: string,          // Custom logo URL
+  theme: string          // Player theme
+}
+```
+
+## 📱 Responsive Design
+
+The player automatically adjusts to different screen sizes:
+- Desktop: Full-width with customizable dimensions
+- Tablet: Responsive scaling with optimal controls
+- Mobile: Mobile-optimized interface with touch controls
+
+## 🔒 Security Features
+
+- **Domain Restriction**: Limit player embedding to specific domains
+- **Geographic Restrictions**: Control access by location
+- **Token Authentication**: Secure playback with temporary tokens
+- **Encryption**: Support for encrypted streams
+
+## 📊 Analytics Integration
+
+Monitor your streams with real-time analytics:
+- Concurrent viewers
+- Bandwidth usage
+- Quality metrics
+- Geographic distribution
+- Device statistics
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## 🙏 Acknowledgments
+
+- [HLS.js](https://github.com/video-dev/hls.js/) for HLS playback
+- [Plyr](https://github.com/sampotts/plyr) for the player interface
+- [Tailwind CSS](https://tailwindcss.com/) for styling
+
+## 📞 Support
+
+For support, please create an issue in the GitHub repository or contact us at:
+- GitHub Issues: [https://github.com/likhonisaac/bdix-player/issues](https://github.com/likhonisaac/bdix-player/issues)
+- Email: support@your-domain.com
+
+---
+
+Made with ❤️ by the BDIX Media Player Team
