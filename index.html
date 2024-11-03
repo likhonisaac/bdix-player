@@ -3,23 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BDIX Media Player - Advanced Streaming</title>
+    <title>BDIX Media Player</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.polyfilled.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
-    
     <style>
-        /* Styling for player and UI */
-        .gradient-bg { background: linear-gradient(135deg, #1a1c2c 0%, #4a5568 100%); }
-        .player-wrapper { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s; }
-        .player-wrapper:hover { box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); }
-        .stream-status { transition: all 0.3s; }
-        .stream-status.online { background-color: #48bb78; }
-        .stream-status.offline { background-color: #f56565; }
-        .pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a1c2c 0%, #4a5568 100%);
+        }
+        .player-wrapper {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .stream-status.online {
+            background-color: #48bb78;
+        }
+        .stream-status.offline {
+            background-color: #f56565;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -32,12 +41,8 @@
         <div class="max-w-6xl mx-auto bg-gray-800 rounded-xl overflow-hidden player-wrapper">
             <div class="flex items-center justify-between px-6 py-3 bg-gray-700">
                 <div class="flex items-center">
-                    <div class="stream-status offline w-3 h-3 rounded-full mr-2 pulse"></div>
+                    <div class="stream-status offline w-3 h-3 rounded-full mr-2 pulse" id="statusIndicator"></div>
                     <span id="streamStatus">Stream Offline</span>
-                </div>
-                <div class="flex items-center">
-                    <i class="fas fa-eye mr-2"></i>
-                    <span id="viewerCount">0</span>
                 </div>
             </div>
 
@@ -46,15 +51,15 @@
                     <source type="application/x-mpegURL" id="videoSource">
                 </video>
                 <div id="loadingOverlay" class="hidden absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
-                    <div class="loading-spinner text-4xl"><i class="fas fa-circle-notch"></i></div>
+                    <div class="loading-spinner text-4xl"><i class="fas fa-circle-notch fa-spin"></i></div>
                 </div>
             </div>
 
             <div class="p-6 bg-gray-800">
                 <div class="grid grid-cols-1 gap-6">
                     <!-- Stream URL Input -->
-                    <div class="relative">
-                        <label class="block text-gray-300 text-sm font-bold mb-2">Stream URL (HLS/M3U8/MP4)</label>
+                    <div>
+                        <label class="block text-gray-300 text-sm font-bold mb-2">Stream URL</label>
                         <div class="flex">
                             <input type="text" id="streamUrl" class="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-l-lg text-white" placeholder="Enter stream URL...">
                             <button onclick="loadStream()" class="px-6 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-500">
@@ -64,7 +69,7 @@
                     </div>
 
                     <!-- Sample Videos Selection -->
-                    <div class="relative mt-4">
+                    <div>
                         <label class="block text-gray-300 text-sm font-bold mb-2">Sample Videos</label>
                         <select id="sampleVideos" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white" onchange="loadSampleVideo()">
                             <option value="">Select a sample video</option>
@@ -79,6 +84,7 @@
                         <i class="fas fa-code mr-2"></i> Generate Embed
                     </button>
 
+                    <!-- Embed Code Display -->
                     <div id="embedCode" class="hidden mt-4">
                         <label class="block text-gray-300 text-sm font-bold mb-2">Embed Code</label>
                         <div class="relative">
@@ -95,11 +101,45 @@
 
     <script>
         const player = new Plyr('#player', {
-            autoplay: true, // Autoplay enabled
-            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
-            settings: ['captions', 'quality', 'speed'],
-            quality: { default: 720, options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240] }
+            autoplay: true,
+            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
         });
+
+        const defaultVideoUrl = "https://github.com/likhonisaac/bdix-player/raw/refs/heads/main/2065511104994570643.mp4";
+
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function loadVideo(url) {
+            const video = document.getElementById('player');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const streamStatus = document.getElementById('streamStatus');
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    player.play();
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    statusIndicator.classList.add('online');
+                    statusIndicator.classList.remove('offline');
+                    streamStatus.textContent = 'Stream Online';
+                });
+            } else {
+                video.src = url;
+                video.onloadedmetadata = () => {
+                    player.play();
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    statusIndicator.classList.add('online');
+                    statusIndicator.classList.remove('offline');
+                    streamStatus.textContent = 'Stream Online';
+                };
+            }
+        }
 
         function loadStream() {
             const url = document.getElementById('streamUrl').value;
@@ -113,44 +153,10 @@
             }
         }
 
-        function loadVideo(url) {
-            const video = document.querySelector('#player');
-            const source = document.querySelector('#videoSource');
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            const streamStatus = document.querySelector('.stream-status');
-
-            loadingOverlay.classList.remove('hidden');
-            streamStatus.classList.add('offline');
-            streamStatus.classList.remove('online');
-            document.getElementById('streamStatus').textContent = 'Stream Offline';
-
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    loadingOverlay.classList.add('hidden');
-                    streamStatus.classList.remove('offline');
-                    streamStatus.classList.add('online');
-                    document.getElementById('streamStatus').textContent = 'Stream Online';
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
-                video.addEventListener('loadedmetadata', () => {
-                    loadingOverlay.classList.add('hidden');
-                    streamStatus.classList.remove('offline');
-                    streamStatus.classList.add('online');
-                    document.getElementById('streamStatus').textContent = 'Stream Online';
-                });
-            }
-        }
-
         function generateEmbed() {
-            const url = document.getElementById('streamUrl').value || document.getElementById('sampleVideos').value;
-            if (url) {
-                document.getElementById('embedCodeText').value = `<iframe src="${url}" frameborder="0" width="100%" height="100%"></iframe>`;
-                document.getElementById('embedCode').classList.remove('hidden');
-            }
+            const url = document.getElementById('streamUrl').value || document.getElementById('sampleVideos').value || defaultVideoUrl;
+            document.getElementById('embedCodeText').value = `<iframe src="${url}" frameborder="0" width="100%" height="100%"></iframe>`;
+            document.getElementById('embedCode').classList.remove('hidden');
         }
 
         function copyEmbedCode() {
@@ -159,6 +165,11 @@
             document.execCommand('copy');
             alert('Embed code copied to clipboard');
         }
+
+        window.onload = () => {
+            const videoUrl = getQueryParam('url') || defaultVideoUrl;
+            loadVideo(videoUrl);
+        };
     </script>
 </body>
 </html>
