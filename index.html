@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BDIX Media Player - Ultimate Streaming Solution</title>
+    <title>BDIX Media Player - Advanced Streaming</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -11,12 +11,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
     
     <style>
-        /* Gradient background and styles for enhanced UI */
+        /* Styling for player and UI */
         .gradient-bg { background: linear-gradient(135deg, #1a1c2c 0%, #4a5568 100%); }
-        .player-wrapper { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; }
-        .player-wrapper:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .loading-spinner { animation: spin 1s linear infinite; }
-        .stream-status { transition: all 0.3s ease; }
+        .player-wrapper { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s; }
+        .player-wrapper:hover { box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); }
+        .stream-status { transition: all 0.3s; }
         .stream-status.online { background-color: #48bb78; }
         .stream-status.offline { background-color: #f56565; }
         .pulse { animation: pulse 2s infinite; }
@@ -27,15 +26,7 @@
     <div class="container mx-auto px-4 py-8">
         <header class="text-center mb-12 gradient-bg rounded-lg p-8">
             <h1 class="text-5xl font-bold mb-4">BDIX Media Player</h1>
-            <p class="text-xl text-gray-300">The Ultimate Cross-Platform Streaming Solution</p>
-            <div class="mt-4 flex justify-center space-x-4">
-                <a href="https://github.com/likhonisaac/bdix-player" target="_blank" class="inline-flex items-center px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700">
-                    <i class="fab fa-github mr-2"></i> GitHub
-                </a>
-                <a href="mailto:me@likhon.dev" class="inline-flex items-center px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-500">
-                    <i class="fas fa-envelope mr-2"></i> Contact
-                </a>
-            </div>
+            <p class="text-xl text-gray-300">Advanced Streaming with Autoplay and Sample Videos</p>
         </header>
 
         <div class="max-w-6xl mx-auto bg-gray-800 rounded-xl overflow-hidden player-wrapper">
@@ -51,7 +42,7 @@
             </div>
 
             <div class="relative aspect-w-16 aspect-h-9">
-                <video id="player" playsinline controls crossorigin="anonymous" class="w-full h-full">
+                <video id="player" playsinline autoplay controls crossorigin="anonymous" class="w-full h-full">
                     <source type="application/x-mpegURL" id="videoSource">
                 </video>
                 <div id="loadingOverlay" class="hidden absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
@@ -61,30 +52,34 @@
 
             <div class="p-6 bg-gray-800">
                 <div class="grid grid-cols-1 gap-6">
+                    <!-- Stream URL Input -->
                     <div class="relative">
                         <label class="block text-gray-300 text-sm font-bold mb-2">Stream URL (HLS/M3U8/MP4)</label>
                         <div class="flex">
-                            <input type="text" id="streamUrl" class="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-l-lg text-white"
-                                   placeholder="Enter stream URL...">
+                            <input type="text" id="streamUrl" class="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-l-lg text-white" placeholder="Enter stream URL...">
                             <button onclick="loadStream()" class="px-6 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-500">
                                 <i class="fas fa-play mr-2"></i> Load
                             </button>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <button onclick="generateEmbed()" class="flex items-center justify-center px-4 py-3 bg-green-600 rounded-lg hover:bg-green-500">
-                            <i class="fas fa-code mr-2"></i> Generate Embed
-                        </button>
-                        <button onclick="toggleChat()" class="flex items-center justify-center px-4 py-3 bg-purple-600 rounded-lg hover:bg-purple-500">
-                            <i class="fas fa-comments mr-2"></i> Toggle Chat
-                        </button>
-                        <button onclick="toggleFullscreen()" class="flex items-center justify-center px-4 py-3 bg-indigo-600 rounded-lg hover:bg-indigo-500">
-                            <i class="fas fa-expand mr-2"></i> Fullscreen
-                        </button>
+                    <!-- Sample Videos Selection -->
+                    <div class="relative mt-4">
+                        <label class="block text-gray-300 text-sm font-bold mb-2">Sample Videos</label>
+                        <select id="sampleVideos" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white" onchange="loadSampleVideo()">
+                            <option value="">Select a sample video</option>
+                            <option value="https://github.com/likhonisaac/bdix-player/raw/refs/heads/main/2065511104994570643.mp4">Sample Video 1</option>
+                            <option value="https://samplelib.com/lib/preview/mp4/sample-5s.mp4">Sample Video 2 (5 seconds)</option>
+                            <option value="https://samplelib.com/lib/preview/mp4/sample-10s.mp4">Sample Video 3 (10 seconds)</option>
+                        </select>
                     </div>
 
-                    <div id="embedCode" class="hidden">
+                    <!-- Generate Embed Button -->
+                    <button onclick="generateEmbed()" class="mt-4 px-4 py-3 bg-green-600 rounded-lg hover:bg-green-500 flex items-center justify-center">
+                        <i class="fas fa-code mr-2"></i> Generate Embed
+                    </button>
+
+                    <div id="embedCode" class="hidden mt-4">
                         <label class="block text-gray-300 text-sm font-bold mb-2">Embed Code</label>
                         <div class="relative">
                             <textarea id="embedCodeText" rows="3" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white" readonly></textarea>
@@ -96,29 +91,11 @@
                 </div>
             </div>
         </div>
-
-        <!-- Features Grid -->
-        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-gray-800 p-6 rounded-xl hover:transform hover:scale-105 transition duration-300">
-                <i class="fas fa-globe text-4xl text-blue-500 mb-4"></i>
-                <h3 class="text-xl font-bold mb-3">Global CDN</h3>
-                <p class="text-gray-300">50+ edge locations with 65Tb/s network capacity for optimal streaming performance.</p>
-            </div>
-            <div class="bg-gray-800 p-6 rounded-xl hover:transform hover:scale-105 transition duration-300">
-                <i class="fas fa-tachometer-alt text-4xl text-green-500 mb-4"></i>
-                <h3 class="text-xl font-bold mb-3">Adaptive Bitrate</h3>
-                <p class="text-gray-300">Automatic quality adjustment based on viewer's network conditions.</p>
-            </div>
-            <div class="bg-gray-800 p-6 rounded-xl hover:transform hover:scale-105 transition duration-300">
-                <i class="fas fa-chart-line text-4xl text-purple-500 mb-4"></i>
-                <h3 class="text-xl font-bold mb-3">Analytics</h3>
-                <p class="text-gray-300">Real-time viewer stats, peak times, and bandwidth usage monitoring.</p>
-            </div>
-        </div>
     </div>
 
     <script>
         const player = new Plyr('#player', {
+            autoplay: true, // Autoplay enabled
             controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
             settings: ['captions', 'quality', 'speed'],
             quality: { default: 720, options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240] }
@@ -126,13 +103,27 @@
 
         function loadStream() {
             const url = document.getElementById('streamUrl').value;
+            loadVideo(url);
+        }
+
+        function loadSampleVideo() {
+            const sampleUrl = document.getElementById('sampleVideos').value;
+            if (sampleUrl) {
+                loadVideo(sampleUrl);
+            }
+        }
+
+        function loadVideo(url) {
             const video = document.querySelector('#player');
             const source = document.querySelector('#videoSource');
             const loadingOverlay = document.getElementById('loadingOverlay');
             const streamStatus = document.querySelector('.stream-status');
+
             loadingOverlay.classList.remove('hidden');
             streamStatus.classList.add('offline');
             streamStatus.classList.remove('online');
+            document.getElementById('streamStatus').textContent = 'Stream Offline';
+
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(url);
@@ -155,7 +146,7 @@
         }
 
         function generateEmbed() {
-            const url = document.getElementById('streamUrl').value;
+            const url = document.getElementById('streamUrl').value || document.getElementById('sampleVideos').value;
             if (url) {
                 document.getElementById('embedCodeText').value = `<iframe src="${url}" frameborder="0" width="100%" height="100%"></iframe>`;
                 document.getElementById('embedCode').classList.remove('hidden');
@@ -167,20 +158,6 @@
             embedCodeText.select();
             document.execCommand('copy');
             alert('Embed code copied to clipboard');
-        }
-
-        function toggleChat() {
-            alert('Toggle chat functionality coming soon!');
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
         }
     </script>
 </body>
