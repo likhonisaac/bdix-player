@@ -3,200 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BDIX Media Player - Advanced Streaming with Autoplay and Sample Videos</title>
-    <meta name="description" content="Experience seamless streaming with our advanced media player, featuring autoplay and sample videos.">
-    <meta name="keywords" content="media player, streaming, sample videos, autoplay">
-    <meta name="author" content="Your Name">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="description" content="BDIX Media Player - Advanced Cross-Platform Streaming Solution">
+    <title>BDIX Media Player</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.polyfilled.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
+
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #1a1c2c 0%, #4a5568 100%);
-        }
-        .player-wrapper {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .stream-status.online {
-            background-color: #48bb78;
-        }
-        .stream-status.offline {
-            background-color: #f56565;
-        }
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .hover-scale {
-            transition: transform 0.2s;
-        }
-        .hover-scale:hover {
-            transform: scale(1.02);
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
+        .gradient-bg { background: linear-gradient(135deg, #1a1c2c 0%, #4a5568 100%); }
+        .stream-status { transition: all 0.3s ease; }
+        .stream-status.online { background-color: #48bb78; }
+        .stream-status.offline { background-color: #f56565; }
+        .loading-spinner { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .player-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
     </style>
-    <link rel="icon" type="image/png" href="favicon.png">
-    <meta name="theme-color" content="#1a1c2c">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BDIX Media Player">
-    <link rel="manifest" href="manifest.json">
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
-    <header class="text-center mb-12 gradient-bg rounded-lg p-8">
-        <h1 class="text-5xl font-bold mb-4">BDIX Media Player</h1>
-        <p class="text-xl text-gray-300">Advanced Streaming with Autoplay and Sample Videos</p>
-    </header>
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8 gradient-bg rounded-lg p-6">
+            <div class="flex justify-between items-center px-4">
+                <h1 class="text-3xl font-bold">BDIX Media Player</h1>
+                <div class="flex space-x-4">
+                    <a href="https://github.com/likhonisaac/bdix-player" target="_blank" 
+                       class="inline-flex items-center px-3 py-1 bg-gray-800 rounded hover:bg-gray-700">
+                        <i class="fab fa-github mr-2"></i> GitHub
+                    </a>
+                    <a href="mailto:me@likhon.dev" 
+                       class="inline-flex items-center px-3 py-1 bg-blue-600 rounded hover:bg-blue-500">
+                        <i class="fas fa-envelope mr-2"></i> Contact
+                    </a>
+                </div>
+            </div>
+        </header>
 
-    <main class="container mx-auto px-4 py-8">
-        <div class="max-w-6xl mx-auto bg-gray-800 rounded-xl overflow-hidden player-wrapper">
-            <div class="flex items-center justify-between px-6 py-3 bg-gray-700">
+        <!-- Player Container -->
+        <div class="max-w-4xl mx-auto bg-gray-800 rounded-xl overflow-hidden player-shadow">
+            <!-- Stream Status -->
+            <div class="flex items-center justify-between px-4 py-2 bg-gray-700">
                 <div class="flex items-center">
-                    <div class="stream-status offline w-3 h-3 rounded-full mr-2 pulse" id="statusIndicator"></div>
-                    <span id="streamStatus" class="sr-only">Stream Offline</span>
+                    <div class="stream-status offline w-2 h-2 rounded-full mr-2"></div>
+                    <span id="streamStatus" class="text-sm">Offline</span>
+                </div>
+                <div class="flex items-center text-sm">
+                    <i class="fas fa-eye mr-2"></i>
+                    <span id="viewerCount">0</span>
                 </div>
             </div>
 
+            <!-- Video Player -->
             <div class="relative aspect-w-16 aspect-h-9">
-                <video id="player" playsinline autoplay controls crossorigin="anonymous" class="w-full h-full">
+                <video id="player" playsinline controls crossorigin="anonymous" class="w-full">
                     <source type="application/x-mpegURL" id="videoSource">
                 </video>
                 <div id="loadingOverlay" class="hidden absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
-                    <div class="loading-spinner text-4xl"><i class="fas fa-circle-notch fa-spin"></i></div>
+                    <i class="fas fa-circle-notch loading-spinner text-3xl"></i>
                 </div>
             </div>
 
-            <div class="p-6 bg-gray-800">
-                <div class="grid grid-cols-1 gap-6">
-                    <!-- Stream URL Input -->
-                    <div>
-                        <label for="streamUrl" class="block text-gray-300 text-sm font-bold mb-2">Stream URL</label>
-                        <div class="flex">
-                            <input type="text" id="streamUrl" class="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-l-lg text-white" placeholder="Enter stream URL...">
-                            <button onclick="loadStream()" class="px-6 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-500">
-                                <i class="fas fa-play mr-2"></i> Load
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Sample Videos Selection -->
-                    <div>
-                        <label for="sampleVideos" class="block text-gray-300 text-sm font-bold mb-2">Sample Videos</label>
-                        <select id="sampleVideos" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white" onchange="loadSampleVideo()">
-                            <option value="">Select a sample video</option>
-                            <option value="https://github.com/likhonisaac/bdix-player/raw/refs/heads/main/2065511104994570643.mp4">Sample Video 1</option>
-                            <option value="https://samplelib.com/lib/preview/mp4/sample-5s.mp4">Sample Video 2 (5 seconds)</option>
-                            <option value="https://samplelib.com/lib/preview/mp4/sample-10s.mp4">Sample Video 3 (10 seconds)</option>
-                        </select>
-                    </div>
-
-                    <!-- Generate Embed Button -->
-                    <button onclick="generateEmbed()" class="mt-4 px-4 py-3 bg-green-600 rounded-lg hover:bg-green-500 flex items-center justify-center">
-                        <i class="fas fa-code mr-2"></i> Generate Embed
-                    </button>
-
-                    <!-- Embed Code Display -->
-                    <div id="embedCode" class="hidden mt-4">
-                        <label for="embedCodeText" class="block text-gray-300 text-sm font-bold mb-2">Embed Code</label>
-                        <div class="relative">
-                            <textarea id="embedCodeText" rows="3" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white" readonly></textarea>
-                            <button onclick="copyEmbedCode()" class="absolute right-2 top-2 px-3 py-1 bg-gray-600 rounded hover:bg-gray-500">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
+            <!-- Controls -->
+            <div class="p-4">
+                <div class="mb-4">
+                    <input type="text" id="streamUrl" 
+                           placeholder="Enter HLS/M3U8/MP4 URL"
+                           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <button onclick="loadStream()" class="px-3 py-2 bg-blue-600 rounded hover:bg-blue-500">
+                        <i class="fas fa-play mr-1"></i> Load
+                    </button>
+                    <button onclick="generateEmbed()" class="px-3 py-2 bg-green-600 rounded hover:bg-green-500">
+                        <i class="fas fa-code mr-1"></i> Embed
+                    </button>
+                    <button onclick="toggleChat()" class="px-3 py-2 bg-purple-600 rounded hover:bg-purple-500">
+                        <i class="fas fa-comments mr-1"></i> Chat
+                    </button>
+                    <button onclick="toggleQuality()" class="px-3 py-2 bg-yellow-600 rounded hover:bg-yellow-500">
+                        <i class="fas fa-cog mr-1"></i> Quality
+                    </button>
+                </div>
+
+                <div id="embedCode" class="hidden mt-4">
+                    <textarea id="embedCodeText" rows="3" readonly
+                              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Overlay -->
+        <div id="chatOverlay" class="hidden fixed right-0 top-0 h-full w-64 bg-gray-800 shadow-lg">
+            <div class="p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold">Live Chat</h3>
+                    <button onclick="toggleChat()" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="chatMessages" class="h-[400px] overflow-y-auto bg-gray-700 rounded p-2"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // Initialize player
         const player = new Plyr('#player', {
-            autoplay: true,
-            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
+            settings: ['quality', 'speed'],
+            quality: { default: 720, options: [1080, 720, 480, 360] }
         });
 
-        const defaultVideoUrl = "https://github.com/likhonisaac/bdix-player/raw/refs/heads/main/2065511104994570643.mp4";
-
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        function loadVideo(url) {
-            const video = document.getElementById('player');
-            const statusIndicator = document.getElementById('statusIndicator');
-            const streamStatus = document.getElementById('streamStatus');
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    player.play();
-                    document.getElementById('loadingOverlay').classList.add('hidden');
-                    statusIndicator.classList.add('online');
-                    statusIndicator.classList.remove('offline');
-                    streamStatus.textContent = 'Stream Online';
-                });
-            } else {
-                video.src = url;
-                video.onloadedmetadata = () => {
-                    player.play();
-                    document.getElementById('loadingOverlay').classList.add('hidden');
-                    statusIndicator.classList.add('online');
-                    statusIndicator.classList.remove('offline');
-                    streamStatus.textContent = 'Stream Online';
-                };
-            }
-        }
-
+        // HLS implementation
         function loadStream() {
             const url = document.getElementById('streamUrl').value;
-            loadVideo(url);
-        }
+            const video = document.querySelector('#player');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const streamStatus = document.querySelector('.stream-status');
 
-        function loadSampleVideo() {
-            const sampleUrl = document.getElementById('sampleVideos').value;
-            if (sampleUrl) {
-                loadVideo(sampleUrl);
+            if (!url) return;
+
+            loadingOverlay.classList.remove('hidden');
+            document.getElementById('streamStatus').textContent = 'Connecting...';
+
+            if (Hls.isSupported()) {
+                const hls = new Hls({ 
+                    debug: false,
+                    enableWorker: true,
+                    lowLatencyMode: true
+                });
+
+                hls.loadSource(url);
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    loadingOverlay.classList.add('hidden');
+                    streamStatus.classList.add('online');
+                    streamStatus.classList.remove('offline');
+                    document.getElementById('streamStatus').textContent = 'Live';
+                    video.play();
+                });
+
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        loadingOverlay.classList.add('hidden');
+                        streamStatus.classList.remove('online');
+                        streamStatus.classList.add('offline');
+                        document.getElementById('streamStatus').textContent = 'Error';
+                    }
+                });
             }
         }
 
         function generateEmbed() {
-            const url = document.getElementById('streamUrl').value || document.getElementById('sampleVideos').value || defaultVideoUrl;
-            document.getElementById('embedCodeText').value = `<iframe src="${url}" frameborder="0" width="100%" height="100%"></iframe>`;
-            document.getElementById('embedCode').classList.remove('hidden');
+            const url = document.getElementById('streamUrl').value;
+            if (!url) return;
+            
+            const embedCode = `<iframe src="https://bdix-player.vercel.app/embed?src=${encodeURIComponent(url)}" 
+                                     width="100%" height="400" frameborder="0" allowfullscreen></iframe>`;
+            
+            const embedDiv = document.getElementById('embedCode');
+            const embedText = document.getElementById('embedCodeText');
+            
+            embedDiv.classList.remove('hidden');
+            embedText.value = embedCode;
         }
 
-        function copyEmbedCode() {
-            const embedCodeText = document.getElementById('embedCodeText');
-            embedCodeText.select();
-            document.execCommand('copy');
-            alert('Embed code copied to clipboard');
+        function toggleChat() {
+            const chat = document.getElementById('chatOverlay');
+            chat.classList.toggle('hidden');
         }
 
-        window.onload = () => {
-            const videoUrl = getQueryParam('url') || defaultVideoUrl;
-            loadVideo(videoUrl);
-        };
+        function toggleQuality() {
+            player.toggleMenu('quality');
+        }
+
+        // Simple analytics
+        setInterval(() => {
+            const viewers = Math.floor(Math.random() * 100);
+            document.getElementById('viewerCount').textContent = viewers;
+        }, 5000);
     </script>
 </body>
 </html>
